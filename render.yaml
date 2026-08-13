@@ -1,0 +1,19 @@
+services:
+  # Express Backend Web Service
+  - type: web
+    name: sleekblog-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+        placeholder: "Enter MongoDB Connection String (e.g., MongoDB Atlas URI)"
+      - key: JWT_SECRET
+        sync: false
+        placeholder: "Enter JWT Secret (a secure random string)"

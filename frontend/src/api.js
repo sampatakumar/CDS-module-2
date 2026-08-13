@@ -1,4 +1,4 @@
-const API_BASE = "/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "/api";
 
 async function handleResponse(response) {
   const data = await response.json().catch(() => null);
@@ -34,8 +34,19 @@ export async function loginUser(body) {
   return handleResponse(response);
 }
 
-export async function getBlogs(token) {
-  const response = await fetch(`${API_BASE}/blogs`, {
+export async function getBlogs(token, search = "", category = "", author = "") {
+  let url = `${API_BASE}/blogs`;
+  const params = new URLSearchParams();
+  if (search) params.append("search", search);
+  if (category && category !== "All") params.append("category", category);
+  if (author) params.append("author", author);
+
+  const queryString = params.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+
+  const response = await fetch(url, {
     method: "GET",
     headers: authHeaders(token)
   });
@@ -67,3 +78,20 @@ export async function deleteBlog(id, token) {
   });
   return handleResponse(response);
 }
+
+export async function getUserProfile(token) {
+  const response = await fetch(`${API_BASE}/auth/profile`, {
+    method: "GET",
+    headers: authHeaders(token)
+  });
+  return handleResponse(response);
+}
+
+export async function getBlogById(id, token) {
+  const response = await fetch(`${API_BASE}/blogs/${id}`, {
+    method: "GET",
+    headers: authHeaders(token)
+  });
+  return handleResponse(response);
+}
+

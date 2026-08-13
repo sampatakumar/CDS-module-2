@@ -3,7 +3,7 @@ const Blog = require("../models/blog.model");
 // Create a new blog post
 const createBlog = async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, category } = req.body;
 
         if (!title || !content) {
             return res.status(400).json({
@@ -14,7 +14,8 @@ const createBlog = async (req, res) => {
         const blog = await Blog.create({
             title,
             content,
-            author: req.user.id
+            author: req.user.id,
+            category: category || "General"
         });
 
         res.status(201).json(blog);
@@ -29,7 +30,25 @@ const createBlog = async (req, res) => {
 // Get all blog posts
 const getBlogs = async (req, res) => {
     try {
-        const blogs = await Blog.find()
+        const { search, category, author } = req.query;
+        let query = {};
+
+        if (category && category !== "All") {
+            query.category = category;
+        }
+
+        if (author) {
+            query.author = author;
+        }
+
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: "i" } },
+                { content: { $regex: search, $options: "i" } }
+            ];
+        }
+
+        const blogs = await Blog.find(query)
             .populate("author", "name email")
             .sort({ createdAt: -1 });
 
@@ -82,10 +101,11 @@ const updateBlog = async (req, res) => {
             });
         }
 
-        const { title, content } = req.body;
+        const { title, content, category } = req.body;
 
         blog.title = title || blog.title;
         blog.content = content || blog.content;
+        blog.category = category || blog.category;
 
         await blog.save();
 

@@ -1,19 +1,23 @@
 import { useState, useEffect } from "react";
 
+const CATEGORIES = ["General", "Technology", "Lifestyle", "Travel", "Business", "Food"];
+
 export default function BlogForm({ blog, onSubmit, onCancel, error }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState("General");
 
   useEffect(() => {
     if (blog) {
       setTitle(blog.title || "");
       setContent(blog.content || "");
+      setCategory(blog.category || "General");
     }
   }, [blog]);
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    onSubmit({ title, content });
+    onSubmit({ title, content, category });
   };
 
   return (
@@ -25,7 +29,22 @@ export default function BlogForm({ blog, onSubmit, onCancel, error }) {
           value={title}
           onChange={(event) => setTitle(event.target.value)}
           placeholder="Blog title"
+          required
         />
+      </label>
+      <label>
+        Category
+        <select
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          className="form-select"
+        >
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
       </label>
       <label>
         Content
@@ -34,6 +53,7 @@ export default function BlogForm({ blog, onSubmit, onCancel, error }) {
           rows="6"
           onChange={(event) => setContent(event.target.value)}
           placeholder="Write your post content here"
+          required
         />
       </label>
       {error && <div className="form-error">{error}</div>}
@@ -48,3 +68,4 @@ export default function BlogForm({ blog, onSubmit, onCancel, error }) {
     </form>
   );
 }
+
